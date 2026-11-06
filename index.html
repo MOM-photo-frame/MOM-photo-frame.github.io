@@ -249,8 +249,8 @@
       ctx.shadowColor = 'transparent';
       ctx.fillStyle = fill; ctx.fillText(txt, 0, y);
     };
-    if (lang === 'kn') { line('ಪಟಾಕಿ ಹೊಡಿ', -16, '#111'); line('ಮೆಡಿಟೇಟ್ ಮಾಡಿ', 66, '#D0101F'); }
-    else { line('Pataki hodi', -14, '#111'); line('Meditate madi', 64, '#D0101F'); }
+    if (lang === 'kn') { line('ಪಟಾಕಿ ಹೊಡಿರಿ', -16, '#111'); line('ಮೆಡಿಟೇಟ್ ಮಾಡಿರಿ', 66, '#D0101F'); }
+    else { line('Pataki hodiri', -14, '#111'); line('Meditate maadiri', 64, '#D0101F'); }
     ctx.restore();
     ctx.textAlign = 'left';
 
@@ -306,7 +306,6 @@
     if (isIOS) {
       // iPhone/iPad: web pages can't write to Photos directly, so "Save to Photos" goes via the share sheet
       // (Save Image) or, if that isn't available, a long-press preview. It is the main action.
-      dlLabel.dataset.i18n = 'savePhotos'; dlLabel.textContent = T[lang].savePhotos;
     }
   }
 
