@@ -68,6 +68,11 @@
   .privacy svg { width:16px; height:16px; flex:0 0 auto; margin-top:1px; }
   footer { margin-top:28px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; color:var(--faint); text-align:center; line-height:1.6; }
   footer a { color:var(--muted); }
+  .sheet { position:fixed; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; background:#000; }
+  .sheet[hidden] { display:none; }
+  .sheet img { width:min(88vw, 480px); height:auto; border-radius:12px; -webkit-touch-callout:default; user-select:auto; }
+  .sheet p { margin:0; max-width:420px; text-align:center; font-size:16px; line-height:1.45; }
+  .sheet .btn { flex:0 0 auto; min-width:160px; }
   input[type=file] { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
 </style>
 </head>
@@ -116,7 +121,7 @@
     </label>
     <!-- After a photo is added -->
     <div class="row" id="doneRow" hidden>
-      <button type="button" class="btn primary" id="shareBtn" hidden>
+      <button type="button" class="btn secondary" id="shareBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 13v7h14v-7"/></svg>
         <span data-i18n="share">Share</span>
       </button>
@@ -137,6 +142,11 @@
   <footer><span data-i18n="note">Personal, fan-made frame. Not an official Isha Foundation page.</span><br>
   <span data-i18n="getapp">Get the app:</span> <a id="appLink" href="https://isha.sadhguru.org/in/en/miracle-of-mind">isha.sadhguru.org/miracle-of-mind</a></footer>
 </main>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetText">
+  <img id="sheetImg" alt="Your framed photo">
+  <p id="sheetText" data-i18n="longPress">Press and hold the image, then tap “Save to Photos”.</p>
+  <button type="button" class="btn secondary" id="sheetClose" data-i18n="close">Done</button>
+</div>
 
 <script>
 (() => {
@@ -153,13 +163,15 @@
           privacy:'Your photo is never uploaded or saved. It stays on your device.',
           note:'Personal, fan-made frame. Not an official Isha Foundation page.', getapp:'Get the app:', link:'https://isha.sadhguru.org/in/en/miracle-of-mind',
           badImg:'Please choose an image file.', readErr:'Could not read that image. Try another photo.', loading:'Loading photo…',
-          saved:'Saved.', cancelled:'Download was cancelled.', done:'Downloaded.', shared:'Shared.' },
+          saved:'Saved.', cancelled:'Download was cancelled.', done:'Downloaded.', shared:'Shared.',
+          savePhotos:'Save to Photos', copiedMsg:'Image saved and message copied. Paste the message with the image.', pickSave:'Tap “Save Image” to add it to Photos.', longPress:'Press and hold the image, then tap “Save to Photos”.', close:'Done' },
     kn: { brand:'ಮಿರಾಕಲ್ ಆಫ್ ಮೈಂಡ್', title:'ನಿಮ್ಮ ಫೋಟೋ ಫ್ರೇಮ್ ಮಾಡಿ', sub:'ಫೋಟೋ ಸೇರಿಸಿ, ಸರಿಹೊಂದಿಸಿ, ನಂತರ ಹಂಚಿಕೊಳ್ಳಿ.', tapAdd:'ನಿಮ್ಮ ಫೋಟೋ ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ',
           hint:'ಸರಿಸಲು ಎಳೆಯಿರಿ · ಜೂಮ್ ಮಾಡಲು ಪಿಂಚ್ ಮಾಡಿ', reset:'ಮರುಹೊಂದಿಸಿ', add:'ಫೋಟೋ ಸೇರಿಸಿ', change:'ಫೋಟೋ ಬದಲಿಸಿ', share:'ಹಂಚಿಕೊಳ್ಳಿ', download:'ಡೌನ್‌ಲೋಡ್',
           privacy:'ನಿಮ್ಮ ಫೋಟೋವನ್ನು ಎಲ್ಲಿಯೂ ಅಪ್‌ಲೋಡ್ ಮಾಡುವುದಿಲ್ಲ ಅಥವಾ ಉಳಿಸುವುದಿಲ್ಲ. ಅದು ನಿಮ್ಮ ಸಾಧನದಲ್ಲೇ ಇರುತ್ತದೆ.',
           note:'ವೈಯಕ್ತಿಕ, ಅಭಿಮಾನಿ ನಿರ್ಮಿತ ಫ್ರೇಮ್. ಇದು ಈಶ ಫೌಂಡೇಶನ್‌ನ ಅಧಿಕೃತ ಪುಟವಲ್ಲ.', getapp:'ಆ್ಯಪ್ ಪಡೆಯಿರಿ:', link:'https://isha.sadhguru.org/in/kn/miracle-of-mind',
           badImg:'ದಯವಿಟ್ಟು ಚಿತ್ರದ ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ.', readErr:'ಈ ಚಿತ್ರವನ್ನು ಓದಲಾಗಲಿಲ್ಲ. ಬೇರೆ ಫೋಟೋ ಪ್ರಯತ್ನಿಸಿ.', loading:'ಫೋಟೋ ಲೋಡ್ ಆಗುತ್ತಿದೆ…',
-          saved:'ಉಳಿಸಲಾಗಿದೆ.', cancelled:'ಡೌನ್‌ಲೋಡ್ ರದ್ದಾಯಿತು.', done:'ಡೌನ್‌ಲೋಡ್ ಆಯಿತು.', shared:'ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ.' }
+          saved:'ಉಳಿಸಲಾಗಿದೆ.', cancelled:'ಡೌನ್‌ಲೋಡ್ ರದ್ದಾಯಿತು.', done:'ಡೌನ್‌ಲೋಡ್ ಆಯಿತು.', shared:'ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ.',
+          savePhotos:'ಫೋಟೋಸ್‌ಗೆ ಉಳಿಸಿ', copiedMsg:'ಚಿತ್ರ ಉಳಿಸಲಾಗಿದೆ ಮತ್ತು ಸಂದೇಶ ಕಾಪಿ ಆಗಿದೆ. ಚಿತ್ರದ ಜೊತೆ ಸಂದೇಶವನ್ನು ಪೇಸ್ಟ್ ಮಾಡಿ.', pickSave:'ಫೋಟೋಸ್‌ಗೆ ಸೇರಿಸಲು “Save Image” ಟ್ಯಾಪ್ ಮಾಡಿ.', longPress:'ಚಿತ್ರವನ್ನು ಒತ್ತಿ ಹಿಡಿದು “Save to Photos” ಟ್ಯಾಪ್ ಮಾಡಿ.', close:'ಮುಗಿಯಿತು' }
   };
   let lang = 'en';
   try { const s = localStorage.getItem('mom-lang'); if (s === 'kn' || s === 'en') lang = s; } catch (e) {}
@@ -277,16 +289,25 @@
   let canShareFiles = false;
   try { canShareFiles = !!(navigator.canShare && navigator.canShare({ files: [new File([new Blob(['x'])], 'x.png', { type: 'image/png' })] })); } catch (e) {}
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const dlLabel = dlBtn.querySelector('span');
+
   function renderState() {
     const has = !!photo;
     stage.classList.toggle('has-photo', has);
     addBtn.hidden = has;
     doneRow.hidden = !has;
     changeBtn.hidden = !has;
-    shareBtn.hidden = !canShareFiles;
+    shareBtn.hidden = false;
+    dlBtn.classList.add('primary'); dlBtn.classList.remove('secondary');
+    shareBtn.classList.remove('primary'); shareBtn.classList.add('secondary');
+    doneRow.insertBefore(dlBtn, shareBtn);
     // When Share is available it is the main action; Download becomes secondary.
-    dlBtn.classList.toggle('primary', !canShareFiles);
-    dlBtn.classList.toggle('secondary', canShareFiles);
+    if (isIOS) {
+      // iPhone/iPad: web pages can't write to Photos directly, so "Save to Photos" goes via the share sheet
+      // (Save Image) or, if that isn't available, a long-press preview. It is the main action.
+      dlLabel.dataset.i18n = 'savePhotos'; dlLabel.textContent = T[lang].savePhotos;
+    }
   }
 
   async function loadFile(file) {
@@ -330,7 +351,29 @@
   let downloads = null;
   if (window.claude && typeof window.claude.use === 'function') { window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {}); }
 
+  const sheet = $('sheet'), sheetImg = $('sheetImg');
+  let sheetUrl = null;
+  function showSheet(blob) {
+    if (sheetUrl) URL.revokeObjectURL(sheetUrl);
+    sheetUrl = URL.createObjectURL(blob); sheetImg.src = sheetUrl;
+    sheet.hidden = false; $('sheetClose').focus();
+  }
+  $('sheetClose').addEventListener('click', () => { sheet.hidden = true; dlBtn.focus(); });
+
+  async function saveToPhotosIOS() {
+    const blob = await makeBlob();
+    const file = new File([blob], FILENAME, { type: 'image/png' });
+    if (canShareFiles) {
+      msg.textContent = T[lang].pickSave;
+      try { await navigator.share({ files: [file] }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    msg.textContent = '';
+    showSheet(blob);
+  }
+
   async function download() {
+    if (isIOS && !downloads) return saveToPhotosIOS();
     const blob = await makeBlob();
     if (downloads) {
       try { await downloads.save({ filename: FILENAME, data: blob }); msg.textContent = T[lang].saved; }
@@ -344,14 +387,20 @@
   }
   dlBtn.addEventListener('click', download);
 
+  const SITE = 'https://mom-photo-frame.github.io/';
+  const SHARE_TEXT = 'Namaskaram 🙏,\n\nPataki hodiri\nMeditate maadiri\n\n' + SITE;
   shareBtn.addEventListener('click', async () => {
     const blob = await makeBlob();
     const file = new File([blob], FILENAME, { type: 'image/png' });
-    try { await navigator.share({ files: [file] }); msg.textContent = T[lang].shared; }
-    catch (e) {
-      if (e && e.name === 'AbortError') return;          // user closed the share sheet
-      canShareFiles = false; renderState(); download();  // sharing not allowed here: fall back
+    if (canShareFiles) {
+      try { await navigator.share({ files: [file], text: SHARE_TEXT }); msg.textContent = T[lang].shared; return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }   // closed the share sheet
     }
+    // No share sheet here (e.g. a computer): copy the message and save the image instead.
+    let copied = false;
+    try { await navigator.clipboard.writeText(SHARE_TEXT); copied = true; } catch (e) {}
+    await download();
+    if (copied) msg.textContent = T[lang].copiedMsg;
   });
 
   // ---------- Language ----------
