@@ -249,8 +249,8 @@
       ctx.shadowColor = 'transparent';
       ctx.fillStyle = fill; ctx.fillText(txt, 0, y);
     };
-    if (lang === 'kn') { line('ಪಟಾಕಿ ಹೊಡಿರಿ', -16, '#111'); line('ಮೆಡಿಟೇಟ್ ಮಾಡಿರಿ', 66, '#D0101F'); }
-    else { line('Pataki hodiri', -14, '#111'); line('Meditate maadiri', 64, '#D0101F'); }
+    if (lang === 'kn') { line('ದೀಪ ಬೆಳಗಿಸಿ', -16, '#111'); line('ಮೆಡಿಟೇಟ್ ಮಾಡಿ', 66, '#D0101F'); }
+    else { line('Deepa belagisi', -14, '#111'); line('Meditate maadi', 64, '#D0101F'); }
     ctx.restore();
     ctx.textAlign = 'left';
 
@@ -387,7 +387,7 @@
   dlBtn.addEventListener('click', download);
 
   const SITE = 'https://mom-photo-frame.github.io/';
-  const SHARE_TEXT = 'Namaskaram 🙏,\n\nPataki hodiri\nMeditate maadiri\n\n' + SITE;
+  const SHARE_TEXT = 'Namaskaram 🙏,\n\nDeepa belagisi\nMeditate maadi\n\n' + SITE;
   shareBtn.addEventListener('click', async () => {
     const blob = await makeBlob();
     const file = new File([blob], FILENAME, { type: 'image/png' });
